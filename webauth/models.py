@@ -30,5 +30,8 @@ class User(AbstractBaseUser):
     def get_short_name(self):
         return self.username
 
+    def is_admin(self):
+        return self.is_staff or self.is_superuser
+
     class Meta:
         ordering = ('date_joined',)

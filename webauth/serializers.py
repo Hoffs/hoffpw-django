@@ -9,6 +9,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('uuid', 'username', 'email', 'is_staff', 'is_active', 'date_joined', 'last_login',)
+        read_only_fields = ('is_staff', 'is_active')
 
 
 class UserRegisterSerializer(serializers.HyperlinkedModelSerializer):

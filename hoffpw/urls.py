@@ -20,8 +20,6 @@ from webauth import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
-router.register(r'register', views.UserRegisterViewSet, base_name='register')
-router.register(r'password', views.PasswordChangeViewSet, base_name='password')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
