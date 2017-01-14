@@ -74,7 +74,11 @@ WSGI_APPLICATION = 'hoffpw.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
         'rest_framework.permissions.IsAdminUser',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'webauth.authentication.CustomTokenAuthentication',
     ],
     'PAGE_SIZE': 10
 }

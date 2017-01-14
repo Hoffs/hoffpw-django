@@ -1,4 +1,7 @@
-from webauth.models import User
+from django.contrib.auth import authenticate
+from django.utils.translation import ugettext_lazy as _
+
+from webauth.models import User, AuthToken
 from rest_framework import serializers
 
 
@@ -6,6 +9,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for getting information about users.
     """
+
     class Meta:
         model = User
         fields = ('uuid', 'username', 'email', 'is_staff', 'is_active', 'date_joined', 'last_login',)
@@ -16,6 +20,7 @@ class UserRegisterSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for registering new users.
     """
+
     class Meta:
         model = User
         fields = ('username', 'password', 'email',)
@@ -35,3 +40,49 @@ class UserPasswordChangeSerializer(serializers.Serializer):
     def create(self, validated_data):
         pass
 
+
+class AuthTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(label=_("Username"))
+    password = serializers.CharField(label=_("Password"), style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+
+            if user:
+                # From Django 1.10 onwards the `authenticate` call simply
+                # returns `None` for is_active=False users.
+                # (Assuming the default `ModelBackend` authentication backend.)
+                if not user.is_active:
+                    msg = _('User account is disabled.')
+                    raise serializers.ValidationError(msg, code='authorization')
+            else:
+                msg = _('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "username" and "password".')
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+
+class DeauthTokenSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AuthToken
+        fields = ('key',)
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
