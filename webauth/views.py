@@ -42,7 +42,7 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
                 serializer = self.get_serializer(instance=user)
             return Response(serializer.data)
         else:
-            return Response({"detail": "Not logged in."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"detail": "Unauthorized."}, status=status.HTTP_401_UNAUTHORIZED)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -56,7 +56,8 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         self.check_object_permissions(request=request, obj=instance)
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        if 'email' in serializer.validated_data or 'username' in serializer.validated_data:
+            self.perform_update(serializer)
 
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to

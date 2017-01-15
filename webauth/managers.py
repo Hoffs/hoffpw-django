@@ -1,4 +1,7 @@
+import hashlib
+
 from django.contrib.auth.models import BaseUserManager
+from django.db import models
 
 
 class CustomUserManager(BaseUserManager):
@@ -21,3 +24,26 @@ class CustomUserManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+
+
+class CustomTokenManager(models.Manager):
+    def get_or_create_or_update(self, **kwargs):
+        user = kwargs.pop('user')
+        try:
+            token = self.get(user=user)
+        except self.model.DoesNotExist:
+            token = self.create(user=user)
+        is_valid, key = self.validate_key(token=token)
+        if not is_valid:
+            token.key = key
+            token.save(using=self._db)
+        else:
+            token.save(using=self._db)
+        return token
+
+    @staticmethod
+    def validate_key(token):
+        valid_key = hashlib.sha256()
+        valid_key.update(token.user.password.encode('utf-8'))
+        valid_key.update(str(token.user.last_login.timestamp()).encode('utf-8'))
+        return valid_key.hexdigest() == token.key, valid_key.hexdigest()
