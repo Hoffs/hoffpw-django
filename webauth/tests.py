@@ -62,11 +62,15 @@ class AccountTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 1)
 
-    def test_authenticate(self):
+    def test_authenticate(self, admin = False):
         """
         Ensure we can authenticate with the created user.
         """
         self.test_create_account()
+        if admin:
+            user = User.objects.get()
+            user.is_staff = True
+            user.save()
         url = '/auth/login/'
         data = {'username': 'test_user', 'password': 'test_password'}
         response = self.client.post(url, data=data)
@@ -93,8 +97,8 @@ class AccountTests(APITestCase):
     def test_get_users_anonymous(self):
         url = '/users/'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.data['detail'], 'Unauthorized.')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 0)
 
     def test_get_users_authenticated(self):
         self.test_authenticate()
@@ -103,8 +107,17 @@ class AccountTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertRaises(KeyError, lambda: response.data['count'])
-        self.assertEqual(UUID(response.data['uuid']), AuthToken.objects.get(key=self.token).user_id)
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(UUID(response.data['results'][0]['uuid']), AuthToken.objects.get(key=self.token).user_id)
+
+    def test_get_users_staff(self):
+        self.test_authenticate(admin=True)
+        self.create_dummy_user()
+        url = '/users/'
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], User.objects.count())
 
     def test_get_user_uuid(self):
         self.test_create_account()
