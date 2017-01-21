@@ -41,12 +41,6 @@ class User(AbstractBaseUser):
         ordering = ('date_joined',)
 
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        AuthToken.objects.create(user=instance)
-
-
 class AuthToken(models.Model):
     key = models.CharField(_("Key"), max_length=60)
     user = models.OneToOneField(

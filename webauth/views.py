@@ -30,9 +30,8 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
     def create(self, request, **kwargs):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = User.objects.create_user(self.request.data['username'], self.request.data['email'],
-                                            self.request.data['password'])
-            serializer.data['uuid'] = user.uuid
+            User.objects.create_user(self.request.data['username'], self.request.data['email'],
+                                     self.request.data['password'])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['post'], serializer_class=UserPasswordChangeSerializer,
