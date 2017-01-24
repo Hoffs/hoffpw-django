@@ -1,5 +1,4 @@
-# Create your views here.
-from django.contrib.auth.models import AnonymousUser
+# Create your views here.0
 from django.http import Http404
 from rest_framework import mixins
 from rest_framework import parsers

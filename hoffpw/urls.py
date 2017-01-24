@@ -17,15 +17,16 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
 
-from webauth import views
+from twitch_stats.views import TwitchProfileViewSet
+from webauth.views import UserViewSet, ObtainAuthToken, InvalidateToken
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'twitch', TwitchProfileViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^auth/login/', views.ObtainAuthToken.as_view()),
+    url(r'^auth/login/', ObtainAuthToken.as_view()),
+    url(r'^auth/logout/', InvalidateToken.as_view()),
     url(r'^admin/', admin.site.urls),
-    url(r'^auth/logout/', views.InvalidateToken.as_view())
-    # url(r'^password/', views.PasswordChangeViewSet.as_view({'post': 'update'})),
 ]
