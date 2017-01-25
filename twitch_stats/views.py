@@ -20,8 +20,10 @@ class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
     def create(self, request, **kwargs):
         serializer = TwitchProfileRegisterSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True) and self.request.user.is_authenticated:
-            TwitchProfile.objects.create(twitch_id=self.request.data['twitch_id'], twitch_user=self.request.data['twitch_user'],
-                                         user=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            detail, is_created = TwitchProfile.objects.create_from_code(code=serializer.data['code'], user=self.request.user)
+            if is_created:
+                return Response({"detail": detail}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"detail": detail}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"detail": "Not authorized."}, status=status.HTTP_401_UNAUTHORIZED)

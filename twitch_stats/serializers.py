@@ -17,7 +17,8 @@ class TwitchProfileRegisterSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for registering new users.
     """
+    code = serializers.CharField(max_length=254)
 
     class Meta:
         model = TwitchProfile
-        fields = ('twitch_id', 'twitch_user',)
+        fields = ('code',)
