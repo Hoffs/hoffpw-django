@@ -7,13 +7,14 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from hoffpw import settings
-from webauth.managers import CustomUserManager, CustomTokenManager
+from webauth.managers import CustomUserManager, CustomTokenManager, ConfirmManager
 
 
 class User(AbstractBaseUser):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=32, unique=True, validators=[MinLengthValidator(4), ])
     email = models.EmailField(max_length=254, unique=True)
+    email_verified = models.BooleanField(default=False)
     password = models.CharField(max_length=254)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -38,6 +39,33 @@ class User(AbstractBaseUser):
     class Meta:
         ordering = ('date_joined',)
 
+class PasswordResetToken(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, related_name='reset_token',
+        on_delete=models.CASCADE, verbose_name=_("User"),
+        primary_key=True
+    )
+    key = models.CharField(_("Key"), max_length=254)
+    created = models.DateTimeField(_("Created"), auto_now_add=True)
+    updated = models.DateTimeField(_("Updated"), auto_now=True)
+    count = models.IntegerField(default=0)
+    active = models.BooleanField(default=False)
+
+    objects = ConfirmManager()
+
+class EmailToken(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, related_name='confirm_token',
+        on_delete=models.CASCADE, verbose_name=_("User"),
+        primary_key=True
+    )
+    key = models.CharField(_("Key"), max_length=254)
+    created = models.DateTimeField(_("Created"), auto_now_add=True)
+    updated = models.DateTimeField(_("Updated"), auto_now=True)
+    count = models.IntegerField(default=0)
+    active = models.BooleanField(default=False)
+
+    objects = ConfirmManager()
 
 class AuthToken(models.Model):
     key = models.CharField(_("Key"), max_length=60)

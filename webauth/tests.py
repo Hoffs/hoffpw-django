@@ -249,7 +249,7 @@ class AccountTests(APITestCase):
         self.test_create_account()
         uuid = str(User.objects.get().uuid)
         url = '/users/{}/change_password/'.format(uuid)
-        data = {'old_password': 'test_password', 'new_password1': 'new_password', 'new_password2': 'new_password'}
+        data = {'old_password': 'test_password', 'new_password': 'new_password'}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -257,7 +257,7 @@ class AccountTests(APITestCase):
         self.test_create_account()
         username = str(User.objects.get().username)
         url = '/users/{}/change_password/'.format(username)
-        data = {'old_password': 'test_password', 'new_password1': 'new_password', 'new_password2': 'new_password'}
+        data = {'old_password': 'test_password', 'new_password': 'new_password'}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -266,7 +266,7 @@ class AccountTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         uuid = str(User.objects.get().uuid)
         url = '/users/{}/change_password/'.format(uuid)
-        data = {'old_password': 'test_password', 'new_password1': 'new_password', 'new_password2': 'new_password'}
+        data = {'old_password': 'test_password', 'new_password': 'new_password'}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -275,7 +275,7 @@ class AccountTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
         username = str(User.objects.get().username)
         url = '/users/{}/change_password/'.format(username)
-        data = {'old_password': 'test_password', 'new_password1': 'new_password', 'new_password2': 'new_password'}
+        data = {'old_password': 'test_password', 'new_password': 'new_password'}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

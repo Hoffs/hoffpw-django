@@ -11,8 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 
 from webauth.serializers import UserSerializer, UserRegisterSerializer, UserPasswordChangeSerializer, \
-    AuthTokenSerializer
-from webauth.models import User, AuthToken
+    AuthTokenSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, EmailConfirmSerializer
+from webauth.models import User, AuthToken, PasswordResetToken, EmailToken
 from webauth.permissions import IsOwnerOrReadOnly
 from uuid import UUID
 
@@ -39,25 +39,28 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         user = self.get_object()
         self.check_object_permissions(request=request, obj=user)
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            if request.user.is_superuser:
-                new_password = request.data['old_password']
+        serializer.is_valid(raise_exception=True)
+        if request.user.is_superuser:
+            new_password = serializer.data['old_password']
+            user.set_password(new_password)
+            user.save()
+            return Response({"detail": "New password has been saved"}, status=status.HTTP_200_OK)
+        else:
+            old_password = serializer.data['old_password']
+            new_password = serializer.data['new_password']
+            if user.check_password(old_password):
                 user.set_password(new_password)
                 user.save()
-                return Response({"detail": "New password has been saved"}, status=status.HTTP_200_OK)
+                return Response({"detail": "New password has been saved."}, status=status.HTTP_200_OK)
             else:
-                old_password = request.data['old_password']
-                new_password1 = request.data['new_password1']
-                new_password2 = request.data['new_password2']
-                if new_password1 == new_password2:
-                    if user.check_password(old_password):
-                        user.set_password(new_password2)
-                        user.save()
-                        return Response({"detail": "New password has been saved."}, status=status.HTTP_200_OK)
-                    else:
-                        return Response({"detail": "Old password doesn't match"}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    return Response({"detail": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "Old password doesn't match"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_update(self, serializer):
+        serializer.is_valid()
+        if serializer.validated_data.get('email') and serializer.context['request'].user.email \
+                != serializer.validated_data.get('email'):
+            serializer.validated_data['email_verified'] = False
+        serializer.save()
 
     def get_object(self):
         try:
@@ -85,27 +88,84 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         else:
             return User.objects.none()
 
+class PasswordReset(APIView):
+    throttle_classes = ()
+    permission_classes = (AllowAny,)
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = User.objects.get(email=serializer.data['email'])
+            token = PasswordResetToken.objects.make_token(user=user)
+            if token:
+                """TODO: Send an email to user."""
+                return Response({"details": token.key}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"details": "No user with such email found."}, status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordResetConfirm(APIView):
+    throttle_classes = ()
+    permission_classes = (AllowAny,)
+    serializer_class = PasswordResetConfirmSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = PasswordResetToken.objects.validate_key(key=serializer.data['token'])
+        if token:
+            token.user.set_password(serializer.data['password'])
+            token.user.save()
+            return Response({"details": "Password has been successfully reset."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"details": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserEmailConfirmRequest(APIView):
+    throttle_classes = ()
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        if user.email_verified:
+            return Response({"detail": "Email already verified."})
+        else:
+            token = EmailToken.objects.make_token(user=user)
+            return Response({"detail": token.key})
+
+class UserEmailConfirm(APIView):
+    throttle_classes = ()
+    permission_classes = (AllowAny,)
+    serializer_class = EmailConfirmSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = EmailToken.objects.validate_key(key=serializer.data['token'])
+        if token:
+            token.user.email_verified = True
+            token.user.save()
+            return Response({"detail": "Email has been successfully verified."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"details": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
 
 class ObtainAuthToken(APIView):
     throttle_classes = ()
     permission_classes = (AllowAny,)
-    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
-    renderer_classes = (renderers.JSONRenderer,)
     serializer_class = AuthTokenSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        user = serializer.data['user']
         user.save()
         token = AuthToken.objects.get_or_create_or_update(user=user)
         return Response({'token': token.key})
 
 
 class InvalidateToken(APIView):
+    throttle_classes = ()
     permission_classes = (IsAuthenticated,)
-    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
-    renderer_classes = (renderers.JSONRenderer,)
 
     def post(self, request, *args, **kwargs):
         token = request.auth
