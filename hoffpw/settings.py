@@ -27,6 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Celery settings
+
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+CELERY_TASK_SERIALIZER = 'json'
 
 # Application definition
 
@@ -37,13 +46,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'webauth',
+    'twitch_stats',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -74,8 +86,13 @@ WSGI_APPLICATION = 'hoffpw.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
         'rest_framework.permissions.IsAdminUser',
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'webauth.authentication.CustomTokenAuthentication',
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'PAGE_SIZE': 10
 }
 
@@ -122,6 +139,12 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# CORS
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:4200',
+)
 
 
 # Static files (CSS, JavaScript, Images)

@@ -16,16 +16,22 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
-from webauth import views
+
+from twitch_stats.views import TwitchProfileViewSet, TwitchProfileConnect
+from webauth.views import *
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'register', views.UserRegisterViewSet, base_name='register')
-router.register(r'password', views.PasswordChangeViewSet, base_name='password')
+router.register(r'users', UserViewSet)
+router.register(r'twitch', TwitchProfileViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^auth/login/', ObtainAuthToken.as_view()),
+    url(r'^auth/logout/', InvalidateToken.as_view()),
     url(r'^admin/', admin.site.urls),
-    # url(r'^password/', views.PasswordChangeViewSet.as_view({'post': 'update'})),
+    url(r'^api/twitch/callback/', TwitchProfileConnect.as_view()),
+    url(r'^password/reset/$', PasswordReset.as_view()),
+    url(r'^password/reset/confirm/$', PasswordResetConfirm.as_view()),
+    url(r'^email/confirm/$', UserEmailConfirm.as_view()),
+    url(r'^email/request/$', UserEmailConfirmRequest.as_view()),
 ]
