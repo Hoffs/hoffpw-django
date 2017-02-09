@@ -39,6 +39,7 @@ class User(AbstractBaseUser):
     class Meta:
         ordering = ('date_joined',)
 
+
 class PasswordResetToken(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='reset_token',
@@ -53,6 +54,7 @@ class PasswordResetToken(models.Model):
 
     objects = ConfirmManager()
 
+
 class EmailToken(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='confirm_token',
@@ -66,6 +68,7 @@ class EmailToken(models.Model):
     active = models.BooleanField(default=False)
 
     objects = ConfirmManager()
+
 
 class AuthToken(models.Model):
     key = models.CharField(_("Key"), max_length=60)
@@ -101,7 +104,7 @@ class AuthToken(models.Model):
         return key.hexdigest()
 
     def invalidate_key(self):
-        self.key = "logged_out"
+        self.key = '0'
         self.save()
 
     def __str__(self):

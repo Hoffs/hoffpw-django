@@ -1,8 +1,6 @@
-# Create your views here.0
+# Create your views here.
 from django.http import Http404
 from rest_framework import mixins
-from rest_framework import parsers
-from rest_framework import renderers
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -88,7 +86,11 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         else:
             return User.objects.none()
 
+
 class PasswordReset(APIView):
+    """
+        API endpoint for sending a request for resetting the password.
+    """
     throttle_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetSerializer
@@ -105,7 +107,11 @@ class PasswordReset(APIView):
         except User.DoesNotExist:
             return Response({"details": "No user with such email found."}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordResetConfirm(APIView):
+    """
+        API endpoint for resetting the password with given token.
+    """
     throttle_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetConfirmSerializer
@@ -121,7 +127,11 @@ class PasswordResetConfirm(APIView):
         else:
             return Response({"details": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserEmailConfirmRequest(APIView):
+    """
+        API endpoint for sending a request for confirming the email.
+    """
     throttle_classes = ()
     permission_classes = (IsAuthenticated,)
 
@@ -133,7 +143,11 @@ class UserEmailConfirmRequest(APIView):
             token = EmailToken.objects.make_token(user=user)
             return Response({"detail": token.key})
 
+
 class UserEmailConfirm(APIView):
+    """
+        API endpoint for confirming email with given token.
+    """
     throttle_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = EmailConfirmSerializer
@@ -149,7 +163,11 @@ class UserEmailConfirm(APIView):
         else:
             return Response({"details": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
 
-class ObtainAuthToken(APIView):
+
+class ObtainToken(APIView):
+    """
+        API endpoint for obtaining authentication token with given details.
+    """
     throttle_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = AuthTokenSerializer
@@ -157,13 +175,16 @@ class ObtainAuthToken(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.data['user']
+        user = serializer.validated_data['user']
         user.save()
         token = AuthToken.objects.get_or_create_or_update(user=user)
         return Response({'token': token.key})
 
 
 class InvalidateToken(APIView):
+    """
+        API endpoint for invalidating the authentication token.
+    """
     throttle_classes = ()
     permission_classes = (IsAuthenticated,)
 

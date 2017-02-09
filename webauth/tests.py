@@ -92,7 +92,7 @@ class AccountTests(APITestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(AuthToken.objects.count(), 1)
-        self.assertEqual(AuthToken.objects.get().key, 'logged_out')
+        self.assertEqual(AuthToken.objects.get().key, '0')
 
     def test_get_users_anonymous(self):
         url = '/users/'

@@ -16,11 +16,14 @@ class TwitchProfile(models.Model):
     authorization_code = models.CharField(max_length=254)
     access_token = models.CharField(max_length=254)
     scopes = models.CharField(max_length=254)
-    should_track = models.BooleanField(default=False)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='twitch_profile',
         on_delete=models.CASCADE, verbose_name=_("User"),
         primary_key=True
+    )
+    tracking_users = models.ManyToManyField(
+        'TwitchTrackingProfile', related_name='tracking_profile',
+        verbose_name=_("Tracking")
     )
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     updated = models.DateTimeField(_("Updated"), auto_now=True)
@@ -32,6 +35,11 @@ class TwitchProfile(models.Model):
     class Meta:
         verbose_name = _("Twitch profile")
         verbose_name_plural = _("Twitch profiles")
+
+
+class TwitchTrackingProfile(models.Model):
+    twitch_id = models.CharField(max_length=254)
+    twitch_name = models.CharField(max_length=254)
 
 
 class TwitchStats(models.Model):

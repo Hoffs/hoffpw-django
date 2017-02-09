@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
 
-from twitch_stats.views import TwitchProfileViewSet, TwitchProfileConnect
+from twitch_stats.views import TwitchProfileViewSet
 from webauth.views import *
 
 router = routers.DefaultRouter()
@@ -26,10 +26,9 @@ router.register(r'twitch', TwitchProfileViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^auth/login/', ObtainAuthToken.as_view()),
+    url(r'^auth/login/', ObtainToken.as_view()),
     url(r'^auth/logout/', InvalidateToken.as_view()),
     url(r'^admin/', admin.site.urls),
-    url(r'^api/twitch/callback/', TwitchProfileConnect.as_view()),
     url(r'^password/reset/$', PasswordReset.as_view()),
     url(r'^password/reset/confirm/$', PasswordResetConfirm.as_view()),
     url(r'^email/confirm/$', UserEmailConfirm.as_view()),
