@@ -10,7 +10,7 @@ class TwitchProfileSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TwitchProfile
-        fields = ('user', 'twitch_id', 'should_track',)
+        fields = ('user', 'twitch_id', 'twitch_display', 'twitch_name', 'twitch_created', 'tracking_users',)
 
 
 class TwitchProfileRegisterSerializer(serializers.HyperlinkedModelSerializer):

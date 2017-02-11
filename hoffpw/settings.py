@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
@@ -153,3 +152,8 @@ CORS_ORIGIN_WHITELIST = (
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'webauth.User'
+
+AUTHENTICATION_BACKENDS = [
+    'webauth.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
