@@ -9,6 +9,36 @@ from webauth import settings
 
 
 class CustomUserManager(BaseUserManager):
+    def get_from_uuid_or_username(self, identifier):
+        response = self.get_from_uuid(identifier)
+        if response:
+            return response
+
+        response = self.get_from_username(identifier)
+        if response:
+            return response
+        else:
+            return None
+
+    def get_from_uuid(self, identifier):
+        try:
+            from uuid import UUID
+            user_id = UUID(identifier, version=4)
+            try:
+                obj = self.model.objects.get(uuid=user_id)
+                return obj
+            except self.model.DoesNotExist:
+                return None
+        except ValueError:
+            return None
+
+    def get_from_username(self, identifier):
+        try:
+            obj = self.model.objects.get(username=identifier)
+            return obj
+        except self.model.DoesNotExist:
+            return None
+
     def create_user(self, username, email, password):
         if not email or not username or not password:
             raise ValueError("User must have username, email and password")

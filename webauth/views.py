@@ -33,7 +33,7 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
 
     @detail_route(methods=['post'], serializer_class=UserPasswordChangeSerializer,
                   permission_classes=[IsAuthenticated, IsOwnerOrReadOnly], url_path='change_password')
-    def set_password(self, request, pk=None):
+    def set_password(self, request):
         user = self.get_object()
         self.check_object_permissions(request=request, obj=user)
         serializer = self.get_serializer(data=request.data)
@@ -61,22 +61,13 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         serializer.save()
 
     def get_object(self):
-        try:
-            uuid = UUID(self.kwargs['pk'], version=4)
-            try:
-                obj = User.objects.get(uuid=uuid)
-                self.check_object_permissions(request=self.request, obj=obj)
-                return obj
-            except User.DoesNotExist:
-                raise Http404
-        except ValueError:
-            username = self.kwargs['pk']
-            try:
-                obj = User.objects.get(username=username)
-                self.check_object_permissions(request=self.request, obj=obj)
-                return obj
-            except User.DoesNotExist:
-                raise Http404
+        identifier = self.kwargs['pk']
+        obj = User.objects.get_from_uuid_or_username(identifier=identifier)
+        if obj:
+            self.check_object_permissions(request=self.request, obj=obj)
+            return obj
+        else:
+            raise Http404
 
     def get_queryset(self):
         if not self.request.user.is_anonymous and self.request.user.is_admin():
