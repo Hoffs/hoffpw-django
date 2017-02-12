@@ -22,7 +22,6 @@ class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
 
     def create(self, request, **kwargs):
         serializer = TwitchProfileRegisterSerializer(data=request.data)
-        print(request.user.is_authenticated())
         if serializer.is_valid(raise_exception=True) and request.user.is_authenticated():
             detail, is_created = TwitchProfile.objects.create_from_code(code=serializer.data['code'],
                                                                         user=request.user)
