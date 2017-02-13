@@ -18,8 +18,7 @@ class TwitchProfile(models.Model):
     scopes = models.CharField(max_length=254)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='twitch_profile',
-        on_delete=models.CASCADE, verbose_name=_("User"),
-        primary_key=True
+        verbose_name=_("User"), primary_key=True
     )
     tracking_users = models.ManyToManyField(
         'TwitchTrackingProfile', related_name='tracking_profile',
