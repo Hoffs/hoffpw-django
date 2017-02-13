@@ -73,7 +73,10 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
         if not self.request.user.is_anonymous and self.request.user.is_admin():
             return User.objects.all()
         elif not self.request.user.is_anonymous:
-            return User.objects.filter(uuid=self.request.user.uuid)
+            try:
+                return User.objects.filter(uuid=self.request.user.uuid)
+            except User.DoesNotExist:
+                return User.objects.none()
         else:
             return User.objects.none()
 

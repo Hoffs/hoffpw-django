@@ -6,13 +6,12 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from twitch_stats.models import TwitchProfile
 from twitch_stats.serializers import TwitchProfileSerializer, TwitchProfileRegisterSerializer
-from rest_framework.views import APIView
 
-from webauth.permissions import IsOwnerOrReadOnly
+from twitch_stats.permissions import IsOwnerOrReadOnly
 
 
 class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                           viewsets.GenericViewSet):
+                           mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """
     A simple ViewSet for viewing and editing twitch profiles.
     """
@@ -45,6 +44,9 @@ class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
         if not self.request.user.is_anonymous and self.request.user.is_admin():
             return TwitchProfile.objects.all()
         elif not self.request.user.is_anonymous:
-            return TwitchProfile.objects.filter(uuid=self.request.user.uuid)
+            try:
+                return TwitchProfile.objects.filter(user=self.request.user)
+            except TwitchProfile.DoesNotExist:
+                return TwitchProfile.objects.none()
         else:
             return TwitchProfile.objects.none()
