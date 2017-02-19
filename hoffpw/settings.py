@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import dj_database_url
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -28,13 +29,16 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Celery settings
-
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
-
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
+CELERY_BROKER_URL = os.environ.get('CLOUDAMQP_URL')
+CELERY_BROKER_POOL_LIMIT = 1 # Will decrease connection usage
+CELERY_BROKER_HEARTBEAT = None # We're using TCP keep-alive instead
+CELERY_BROKER_CONNECTION_TIMEOUT = 30 # May require a long timeout due to Linux DNS timeouts etc
 CELERY_ACCEPT_CONTENT = ['json']
-CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+CELERY_RESULT_BACKEND = None # AMQP is not recommended as result backend as it creates thousands of queues
+CELERY_SEND_EVENTS = False # Will not create celeryev.* queues
+CELERY_EVENT_QUEUE_EXPIRES = 60 # Will delete all celeryev. queues without consumers after 1 minute.
 CELERY_TASK_SERIALIZER = 'json'
 
 # Application definition
@@ -157,6 +161,10 @@ AUTHENTICATION_BACKENDS = [
     'webauth.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Update database configuration with $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
 try:
     from .local_settings import *
