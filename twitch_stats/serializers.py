@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from twitch_stats.models import TwitchProfile
+from twitch_stats.models import TwitchProfile, TwitchTrackingProfile
 
 
 class TwitchProfileSerializer(serializers.HyperlinkedModelSerializer):
@@ -10,9 +10,7 @@ class TwitchProfileSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TwitchProfile
-        fields = ('user', 'twitch_id', 'twitch_display', 'twitch_name', 'twitch_is_partnered', 'twitch_created',
-                  'tracking_users',)
-
+        fields = ('user', 'twitch_id', 'twitch_display', 'twitch_name', 'twitch_is_partnered', 'twitch_created',)
 
 class TwitchProfileRegisterSerializer(serializers.HyperlinkedModelSerializer):
     """
@@ -23,3 +21,24 @@ class TwitchProfileRegisterSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TwitchProfile
         fields = ('code',)
+
+class TwitchAddTrackingSerializer(serializers.Serializer):
+    """
+    Serializer for adding user to track.
+    """
+    twitch_id = serializers.CharField(max_length=254)
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
+class TwitchTrackingSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Serializer for displaying tracked users by a profile.
+    """
+
+    class Meta:
+        model = TwitchTrackingProfile
+        fields = ('twitch_id',)

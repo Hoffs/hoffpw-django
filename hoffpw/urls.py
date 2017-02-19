@@ -15,22 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from rest_framework import routers
 
-from twitch_stats.views import TwitchProfileViewSet
-from webauth.views import *
+from twitch_stats.urls import twitch_patterns
+from webauth.urls import auth_patterns
 
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-router.register(r'twitch', TwitchProfileViewSet)
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^auth/login/', ObtainToken.as_view()),
-    url(r'^auth/logout/', InvalidateToken.as_view()),
+    url(r'^', include(auth_patterns)),
+    url(r'^', include(twitch_patterns)),
     url(r'^admin/', admin.site.urls),
-    url(r'^password/reset/$', PasswordReset.as_view()),
-    url(r'^password/reset/confirm/$', PasswordResetConfirm.as_view()),
-    url(r'^email/confirm/$', UserEmailConfirm.as_view()),
-    url(r'^email/request/$', UserEmailConfirmRequest.as_view()),
 ]
