@@ -26,7 +26,7 @@ SECRET_KEY = '3-jl153nj14q_*&gw^lkg8jrq1#30jtsjbm0lmt=xptok1!(ee'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hoff.pw']
 
 # Celery settings
 #: Only add pickle to this list if your broker is secured
