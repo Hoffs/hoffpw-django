@@ -33,7 +33,7 @@ class UserViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Creat
 
     @detail_route(methods=['post'], serializer_class=UserPasswordChangeSerializer,
                   permission_classes=[IsAuthenticated, IsOwnerOrReadOnly], url_path='change_password')
-    def set_password(self, request):
+    def set_password(self, request, pk=None):
         user = self.get_object()
         self.check_object_permissions(request=request, obj=user)
         serializer = self.get_serializer(data=request.data)

@@ -2,7 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
 from hoffpw import settings
-from twitch_stats.managers import TwitchProfileManager
+from twitch_stats.managers import TwitchProfileManager, TwitchTrackingProfileManager, TwitchStatsManager
 
 
 class TwitchProfile(models.Model):
@@ -17,7 +17,7 @@ class TwitchProfile(models.Model):
     access_token = models.CharField(max_length=254)
     scopes = models.CharField(max_length=254)
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, related_name='twitch_profile',
+        settings.AUTH_USER_MODEL, related_name='user',
         verbose_name=_("User"), primary_key=True
     )
     tracking_users = models.ManyToManyField(
@@ -27,7 +27,7 @@ class TwitchProfile(models.Model):
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     updated = models.DateTimeField(_("Updated"), auto_now=True)
 
-    REQUIRED_FIELDS = ['twitch_id', 'twitch_name', 'authorization_code', 'access_token']
+    REQUIRED_FIELDS = ['twitch_id', 'twitch_name', 'user', 'authorization_code', 'access_token']
 
     objects = TwitchProfileManager()
 
@@ -37,11 +37,14 @@ class TwitchProfile(models.Model):
 
 
 class TwitchTrackingProfile(models.Model):
-    twitch_id = models.CharField(max_length=254)
+    twitch_id = models.CharField(max_length=254, unique=True)
     twitch_name = models.CharField(max_length=254)
+
+    objects = TwitchTrackingProfileManager()
 
 
 class TwitchStats(models.Model):
+    stream_id = models.CharField(max_length=254)
     game = models.CharField(max_length=254)
     delay = models.FloatField()
     average_fps = models.FloatField()
@@ -50,8 +53,10 @@ class TwitchStats(models.Model):
     channel_status = models.CharField(max_length=254)
     channel_mature = models.BooleanField(default=False)
     channel_language = models.CharField(max_length=64)
-    channel_went_live = models.DateTimeField()
+    went_live = models.DateTimeField()
     is_playlist = models.BooleanField(default=False)
     is_partner = models.BooleanField(default=False)
     total_views = models.BigIntegerField()
     total_followers = models.BigIntegerField()
+
+    objects = TwitchStatsManager()
