@@ -157,3 +157,8 @@ AUTHENTICATION_BACKENDS = [
     'webauth.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
