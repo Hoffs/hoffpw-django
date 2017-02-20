@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '3-jl153nj14q_*&gw^lkg8jrq1#30jtsjbm0lmt=xptok1!(ee'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -156,6 +156,7 @@ USE_TZ = True
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:4200',
+    'hoff.pw'
 )
 
 
@@ -179,3 +180,5 @@ try:
     from .local_settings import *
 except ImportError:
     pass
+
+DEBUG = os.environ.get('DEBUG')
