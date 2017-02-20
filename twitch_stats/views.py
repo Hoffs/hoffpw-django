@@ -56,6 +56,7 @@ class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
         else:
             return TwitchProfile.objects.none()
 
+
 class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.DestroyModelMixin,
                                    mixins.CreateModelMixin, mixins.RetrieveModelMixin):
     queryset = TwitchTrackingProfile.objects.all()
