@@ -28,6 +28,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['api.hoff.pw']
 
+# SSL ( It seems not now, can't have heroku ssl on custom domain for free.
+"""
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+"""
+
 # Celery settings
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
@@ -164,11 +170,6 @@ AUTHENTICATION_BACKENDS = [
     'webauth.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-# SSL
-
-SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Update database configuration with $DATABASE_URL.
 db_from_env = dj_database_url.config(conn_max_age=500)
