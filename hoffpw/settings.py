@@ -182,3 +182,6 @@ except ImportError:
     pass
 
 DEBUG = os.environ.get('DEBUG')
+print(DEBUG)
+SECRET_KEY = os.environ.get('SECRET_KEY')
+print(SECRET_KEY)
