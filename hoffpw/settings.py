@@ -24,7 +24,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False')
+DEBUG_VAR = os.environ.get('DEBUG', '0')
+if DEBUG_VAR == 1:
+    DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['api.hoff.pw']
 
