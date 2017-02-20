@@ -15,7 +15,7 @@ class User(AbstractBaseUser):
     username = models.TextField(unique=True, validators=[MinLengthValidator(4), MaxLengthValidator(32)])
     email = models.EmailField(max_length=254, unique=True)
     email_verified = models.BooleanField(default=False)
-    password = models.TextField()
+    password = models.TextField(validators=[MinLengthValidator(8)])
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

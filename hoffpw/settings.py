@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True')
+DEBUG = os.environ.get('DEBUG', 'False')
 
 ALLOWED_HOSTS = ['api.hoff.pw']
 
@@ -155,7 +155,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CORS
+# CORS | REMOVE LOCALHOST AT SOME POINT !!!!!!!
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:4200',
