@@ -129,6 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -176,11 +179,10 @@ AUTHENTICATION_BACKENDS = [
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
+
 try:
     from .local_settings import *
 except ImportError:
     pass
 
-print(DEBUG)
-SECRET_KEY = os.environ.get('SECRET_KEY')
-print(SECRET_KEY)

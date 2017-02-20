@@ -2,7 +2,7 @@ import uuid
 import hashlib
 
 from django.contrib.auth.models import AbstractBaseUser
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,10 +12,10 @@ from webauth.managers import CustomUserManager, CustomTokenManager, ConfirmManag
 
 class User(AbstractBaseUser):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    username = models.CharField(max_length=32, unique=True, validators=[MinLengthValidator(4), ])
+    username = models.TextField(unique=True, validators=[MinLengthValidator(4), MaxLengthValidator(32)])
     email = models.EmailField(max_length=254, unique=True)
     email_verified = models.BooleanField(default=False)
-    password = models.CharField(max_length=254)
+    password = models.TextField()
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -46,7 +46,7 @@ class PasswordResetToken(models.Model):
         on_delete=models.CASCADE, verbose_name=_("User"),
         primary_key=True
     )
-    key = models.CharField(_("Key"), max_length=254)
+    key = models.TextField(_("Key"))
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     updated = models.DateTimeField(_("Updated"), auto_now=True)
     count = models.IntegerField(default=0)
@@ -61,7 +61,7 @@ class EmailToken(models.Model):
         on_delete=models.CASCADE, verbose_name=_("User"),
         primary_key=True
     )
-    key = models.CharField(_("Key"), max_length=254)
+    key = models.TextField(_("Key"))
     created = models.DateTimeField(_("Created"), auto_now_add=True)
     updated = models.DateTimeField(_("Updated"), auto_now=True)
     count = models.IntegerField(default=0)
@@ -71,7 +71,7 @@ class EmailToken(models.Model):
 
 
 class AuthToken(models.Model):
-    key = models.CharField(_("Key"), max_length=60)
+    key = models.TextField(_("Key"), max_length=60)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='auth_token',
         on_delete=models.CASCADE, verbose_name=_("User"),
