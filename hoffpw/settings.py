@@ -21,12 +21,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '3-jl153nj14q_*&gw^lkg8jrq1#30jtsjbm0lmt=xptok1!(ee'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG_VAR = os.environ.get('DEBUG', '0')
+if DEBUG_VAR == 1:
+    DEBUG = True
+else:
+    DEBUG = False
 
 ALLOWED_HOSTS = ['api.hoff.pw']
+
+# SSL ( It seems not now, can't have heroku ssl on custom domain for free.
+"""
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+"""
 
 # Celery settings
 #: Only add pickle to this list if your broker is secured
@@ -123,6 +133,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -146,10 +159,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CORS
+# CORS | REMOVE LOCALHOST AT SOME POINT !!!!!!!
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:4200',
+    'hoff.pw'
 )
 
 
@@ -166,10 +180,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # Update database configuration with $DATABASE_URL.
-db_from_env = dj_database_url.config(conn_max_age=500)
+db_from_env = dj_database_url.config(conn_max_age=0)
 DATABASES['default'].update(db_from_env)
+
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 try:
     from .local_settings import *
 except ImportError:
     pass
+
