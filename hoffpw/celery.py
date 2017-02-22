@@ -6,8 +6,7 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hoffpw.settings')
 
 app = Celery('hoffpw',
-             backend='amqp',
-             broker='amqp://guest@localhost//')
+             backend='amqp',)
 
 # This reads, e.g., CELERY_ACCEPT_CONTENT = ['json'] from settings.py:
 app.config_from_object('django.conf:settings', namespace='CELERY')

@@ -6,16 +6,16 @@ from twitch_stats.managers import TwitchProfileManager, TwitchTrackingProfileMan
 
 
 class TwitchProfile(models.Model):
-    twitch_id = models.CharField(max_length=254)
-    twitch_name = models.CharField(max_length=254)
-    twitch_display = models.CharField(max_length=254)
+    twitch_id = models.TextField()
+    twitch_name = models.TextField()
+    twitch_display = models.TextField()
     twitch_email = models.EmailField()
     twitch_is_partnered = models.BooleanField(default=False)
-    twitch_user_type = models.CharField(max_length=254)
+    twitch_user_type = models.TextField()
     twitch_created = models.DateTimeField()
-    authorization_code = models.CharField(max_length=254)
-    access_token = models.CharField(max_length=254)
-    scopes = models.CharField(max_length=254)
+    authorization_code = models.TextField()
+    access_token = models.TextField()
+    scopes = models.TextField()
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, related_name='user',
         verbose_name=_("User"), primary_key=True
@@ -37,22 +37,22 @@ class TwitchProfile(models.Model):
 
 
 class TwitchTrackingProfile(models.Model):
-    twitch_id = models.CharField(max_length=254, unique=True)
-    twitch_name = models.CharField(max_length=254)
+    twitch_id = models.TextField(max_length=254, unique=True)
+    twitch_name = models.TextField(max_length=254)
 
     objects = TwitchTrackingProfileManager()
 
 
 class TwitchStats(models.Model):
-    stream_id = models.CharField(max_length=254)
-    game = models.CharField(max_length=254)
+    stream_id = models.TextField()
+    game = models.TextField()
     delay = models.FloatField()
     average_fps = models.FloatField()
     current_viewers = models.IntegerField()
-    channel_id = models.CharField(max_length=254)
-    channel_status = models.CharField(max_length=254)
+    channel_id = models.TextField()
+    channel_status = models.TextField()
     channel_mature = models.BooleanField(default=False)
-    channel_language = models.CharField(max_length=64)
+    channel_language = models.TextField()
     went_live = models.DateTimeField()
     is_playlist = models.BooleanField(default=False)
     is_partner = models.BooleanField(default=False)

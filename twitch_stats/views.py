@@ -1,15 +1,18 @@
+from django.core import serializers
 from django.http import Http404
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from twitch_stats.models import TwitchProfile, TwitchTrackingProfile
+from rest_framework.views import APIView
+
+from twitch_stats.models import TwitchProfile, TwitchTrackingProfile, TwitchStats
 from twitch_stats.serializers import TwitchProfileSerializer, TwitchProfileRegisterSerializer, \
-    TwitchAddTrackingSerializer, TwitchTrackingSerializer
+    TwitchAddTrackingSerializer, TwitchTrackingSerializer, TrackingSchedulerSerializer
 
 from twitch_stats.permissions import IsOwnerOrReadOnly
+from twitch_stats.settings import GOD_TOKEN
 
 
 class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -55,6 +58,7 @@ class TwitchProfileViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
                 return TwitchProfile.objects.none()
         else:
             return TwitchProfile.objects.none()
+
 
 class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.DestroyModelMixin,
                                    mixins.CreateModelMixin, mixins.RetrieveModelMixin):
@@ -104,3 +108,44 @@ class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixi
         else:
             return TwitchTrackingProfile.objects.none()
 
+
+class TrackingView(APIView):
+    """
+    View for starting and stopping scheduled task.
+    """
+    throttle_classes = ()
+    permission_classes = (AllowAny,)
+    serializer_class = TrackingSchedulerSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.validated_data['token'] != GOD_TOKEN:
+            return Response({'detail': 'Unauthorized.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if serializer.validated_data['command'] == 'start':
+            code = TwitchStats.objects.start_collecting(interval=serializer.validated_data['interval'])
+            if code:
+                return Response({'detail': 'Started collecting.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Task already running'}, status=status.HTTP_400_BAD_REQUEST)
+        elif serializer.validated_data['command'] == 'stop':
+            code = TwitchStats.objects.stop_collecting()
+            if code:
+                return Response({'detail': 'Stopped collecting.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'No tasks are running.'}, status=status.HTTP_404_NOT_FOUND)
+        elif serializer.validated_data['command'] == 'update':
+            code = TwitchStats.objects.update_collecting(interval=serializer.validated_data['interval'])
+            if code:
+                return Response({'detail': 'Task updated.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Task not updated'}, status=status.HTTP_400_BAD_REQUEST)
+        elif serializer.validated_data['command'] == 'info':
+            result = TwitchStats.objects.info_collecting()
+            if result:
+                return Response(serializers.serialize('json', [result]), status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Task not running.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'detail': 'Invalid command.'}, status=status.HTTP_400_BAD_REQUEST)

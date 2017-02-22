@@ -39,6 +39,7 @@ class UserPasswordChangeSerializer(serializers.Serializer):
     def create(self, validated_data):
         pass
 
+
 class PasswordResetSerializer(serializers.Serializer):
     """
     Serializer for requesting a reset token for password.
@@ -64,6 +65,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     def create(self, validated_data):
         pass
 
+
 class EmailConfirmRequestSerializer(serializers.Serializer):
     """
     Serializer for requesting a confirmation token for email.
@@ -71,6 +73,7 @@ class EmailConfirmRequestSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = ('email',)
+
 
 class EmailConfirmSerializer(serializers.Serializer):
     """
@@ -83,6 +86,7 @@ class EmailConfirmSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         pass
+
 
 class AuthTokenSerializer(serializers.Serializer):
     """

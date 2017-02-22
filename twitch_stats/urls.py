@@ -2,7 +2,7 @@ from django.conf.urls import include
 from django.conf.urls import url
 from rest_framework_nested import routers
 
-from twitch_stats.views import TwitchProfileViewSet, TwitchTrackingProfileViewSet
+from twitch_stats.views import TwitchProfileViewSet, TwitchTrackingProfileViewSet, TrackingView
 
 router = routers.DefaultRouter()
 router.register(r'twitch', TwitchProfileViewSet)
@@ -12,5 +12,6 @@ profile_router.register(r'tracking', TwitchTrackingProfileViewSet, base_name='tw
 
 twitch_patterns = [
     url(r'^', include(router.urls)),
-    url(r'^', include(profile_router.urls))
+    url(r'^', include(profile_router.urls)),
+    url(r'settings/tracking$', TrackingView.as_view())
 ]
