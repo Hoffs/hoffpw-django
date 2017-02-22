@@ -1,8 +1,10 @@
 import uuid
 
+import django_celery_beat
 from django.db import models
 import requests
 import dateutil.parser
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
 from .settings import TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, TWITCH_REDIRECT_URI, TWITCH_VERSION_HEADERS
 
@@ -150,6 +152,7 @@ class TwitchTrackingProfileManager(models.Manager):
         except self.model.DoesNotExist:
             return None
 
+
 class TwitchStatsManager(models.Manager):
     def get_stats(self, twitch_id=None):
         if not twitch_id:
@@ -175,3 +178,63 @@ class TwitchStatsManager(models.Manager):
                 total_views=stream['channel']['views'],
                 total_followers=stream['channel']['followers']
             )
+            return True
+        return False
+
+    def start_collecting(self, interval=1):
+        if PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').count() == 0:
+            schedule, created = IntervalSchedule.objects.get_or_create(
+                every=interval,
+                period=IntervalSchedule.MINUTES,
+            )
+
+            task = PeriodicTask.objects.create(
+                interval=schedule,
+                name='Collecting statistics',
+                task='twitch_stats.tasks.get_all_stats',
+            )
+            return True
+        elif PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').count() > 0:
+            task = PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').first()
+            if not task.enabled:
+                task.enabled = True
+                task.save()
+                return True
+            else:
+                return False
+
+    def stop_collecting(self):
+        if PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').count() == 1:
+            task = PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').first()
+            if task.enabled:
+                task.enabled = False
+                task.save()
+                return True
+            else:
+                return False
+        elif PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').count() > 1:
+            PeriodicTask.objects.all().delete()
+            return True
+        else:
+            return False
+
+    def update_collecting(self, interval=5):
+        if PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').count() == 1:
+            schedule, created = IntervalSchedule.objects.get_or_create(
+                every=interval,
+                period=IntervalSchedule.MINUTES,
+            )
+            task = PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').first()
+            task.interval = schedule
+            task.save()
+            return True
+        else:
+            return False
+
+    def info_collecting(self):
+        print(django_celery_beat.__version__)
+        if PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').count() == 1:
+            task = PeriodicTask.objects.filter(task='twitch_stats.tasks.get_all_stats').first()
+            return task
+        else:
+            return None

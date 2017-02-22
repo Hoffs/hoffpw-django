@@ -12,6 +12,7 @@ class TwitchProfileSerializer(serializers.HyperlinkedModelSerializer):
         model = TwitchProfile
         fields = ('user', 'twitch_id', 'twitch_display', 'twitch_name', 'twitch_is_partnered', 'twitch_created',)
 
+
 class TwitchProfileRegisterSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for registering new users.
@@ -21,6 +22,7 @@ class TwitchProfileRegisterSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TwitchProfile
         fields = ('code',)
+
 
 class TwitchAddTrackingSerializer(serializers.Serializer):
     """
@@ -34,6 +36,7 @@ class TwitchAddTrackingSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         pass
 
+
 class TwitchTrackingSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for displaying tracked users by a profile.
@@ -42,3 +45,19 @@ class TwitchTrackingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TwitchTrackingProfile
         fields = ('twitch_id',)
+
+
+class TrackingSchedulerSerializer(serializers.Serializer):
+    """
+    Serializer for starting and stopping stats collection scheduled task.
+    """
+
+    command = serializers.CharField()
+    interval = serializers.CharField(default=5)
+    token = serializers.CharField()
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass

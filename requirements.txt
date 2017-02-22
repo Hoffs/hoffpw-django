@@ -1,14 +1,15 @@
 amqp==2.1.4
 appdirs==1.4.0
 billiard==3.5.0.2
-celery==4.0.2
+git+git://github.com/HealthTechDevelopers/celery@master#celery
 dj-database-url==0.4.2
 Django==1.10.5
+git+git://github.com/celery/django-celery-beat.git@master#egg=django-celery-beat
 django-cors-headers==2.0.2
 djangorestframework==3.5.4
 drf-nested-routers==0.11.1
 enum-compat==0.0.2
-eventlet==0.20.1
+eventlet==0.17.4
 gevent==1.2.1
 greenlet==0.4.12
 gunicorn==19.6.0
