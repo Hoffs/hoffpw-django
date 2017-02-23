@@ -37,7 +37,7 @@ class TwitchProfile(models.Model):
 
 
 class TwitchTrackingProfile(models.Model):
-    twitch_id = models.TextField(max_length=254, unique=True)
+    twitch_id = models.TextField(max_length=254)
     twitch_name = models.TextField(max_length=254)
 
     objects = TwitchTrackingProfileManager()
