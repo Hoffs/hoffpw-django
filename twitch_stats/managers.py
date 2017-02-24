@@ -120,12 +120,12 @@ class TwitchTrackingProfileManager(models.Manager):
             r = requests.get(url=url, headers=headers)
             r_id = r.json().get('_id')
             r_name = r.json().get('name')
-            if t_id == r_id:
+            if r_id and r_name and t_id == r_id:
                 return True, r_name
             else:
-                return False
+                return False, None
         else:
-            return False
+            return False, None
 
     def get_from_id_or_name(self, identifier=None):
         response = self.get_from_username(identifier)
