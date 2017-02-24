@@ -75,10 +75,10 @@ class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixi
             if obj:
                 parent.tracking_users.add(obj)
                 parent.save()
-                return Response({'detail': 'Successfully added user to tracking list.'})
+                return Response({'detail': 'Successfully added user to tracking list.'}, status=status.HTTP_200_OK)
             else:
-                return Response({'detail': 'Error in verifying twitch user.'})
-        return Response({'detail': 'Something went wrong.'})
+                return Response({'detail': 'Error in verifying twitch user.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'detail': 'Something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get_object(self):
         try:
