@@ -72,9 +72,12 @@ class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixi
         self.check_object_permissions(request=request, obj=parent)
         if serializer.is_valid(raise_exception=True):
             obj = TwitchTrackingProfile.objects.get_or_create(t_id=serializer.validated_data['twitch_id'])
-            parent.tracking_users.add(obj)
-            parent.save()
-            return Response({'detail': 'Successfully added user to tracking list.'})
+            if obj:
+                parent.tracking_users.add(obj)
+                parent.save()
+                return Response({'detail': 'Successfully added user to tracking list.'})
+            else:
+                return Response({'detail': 'Error in verifying twitch user.'})
         return Response({'detail': 'Something went wrong.'})
 
     def get_object(self):
