@@ -112,6 +112,12 @@ class TwitchTrackingProfileManager(models.Manager):
                 return self.create(twitch_id=t_id, twitch_name=t_name)
         return None
 
+    def can_delete(self, obj=None):
+        if obj.tracking_profile.count() > 0:
+            return False
+        else:
+            return True
+
     @staticmethod
     def _verify_id(t_id=None):
         if t_id:
@@ -127,27 +133,27 @@ class TwitchTrackingProfileManager(models.Manager):
         else:
             return False, None
 
-    def get_from_id_or_name(self, identifier=None):
-        response = self.get_from_username(identifier)
+    def get_from_id_or_name_with_user(self, identifier=None, user=None):
+        response = self.get_from_username(identifier=identifier, user=user)
         if response:
             return response
 
-        response = self.get_from_id(identifier)
+        response = self.get_from_id(identifier=identifier, user=user)
         if response:
             return response
         else:
             return None
 
-    def get_from_username(self, identifier):
+    def get_from_username(self, identifier=None, user=None):
         try:
-            obj = self.model.objects.get(twitch_name=identifier.lower())
+            obj = self.model.objects.get(twitch_name=identifier.lower(), tracking_profile=user)
             return obj
         except self.model.DoesNotExist:
             return None
 
-    def get_from_id(self, identifier):
+    def get_from_id(self, identifier, user=None):
         try:
-            obj = self.model.objects.get(twitch_id=identifier)
+            obj = self.model.objects.get(twitch_id=identifier, tracking_profile=user)
             return obj
         except self.model.DoesNotExist:
             return None
