@@ -80,14 +80,25 @@ class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixi
                 return Response({'detail': 'Error in verifying twitch user.'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'detail': 'Something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
 
+    def destroy(self, request, *args, **kwargs):
+        parent = self.get_parent()
+        self.check_object_permissions(request=request, obj=parent)
+        obj = self.get_object()
+        parent.tracking_users.remove(obj)
+        if TwitchTrackingProfile.objects.can_delete(obj=obj):
+            obj.delete()
+            return Response({'detail': 'Removed from tracking and deleted.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'Removed from tracking.'}, status=status.HTTP_200_OK)
+
     def get_object(self):
         try:
             identifier = self.kwargs['pk']
         except KeyError:
             raise Http404
-        obj = TwitchTrackingProfile.objects.get_from_id_or_name(identifier=identifier)
+        parent = self.get_parent()
+        obj = TwitchTrackingProfile.objects.get_from_id_or_name_with_user(identifier=identifier, user=parent)
         if obj:
-            parent = self.get_parent()
             self.check_object_permissions(request=self.request, obj=parent)
             return obj
         else:
