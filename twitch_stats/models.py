@@ -58,5 +58,6 @@ class TwitchStats(models.Model):
     is_partner = models.BooleanField(default=False)
     total_views = models.BigIntegerField()
     total_followers = models.BigIntegerField()
+    created = models.DateTimeField(_("Created"), auto_now_add=True)
 
     objects = TwitchStatsManager()
