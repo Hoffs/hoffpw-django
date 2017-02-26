@@ -7,6 +7,6 @@ from webauth.urls import auth_patterns
 
 urlpatterns = [
     url(r'^', include(auth_patterns)),
-    url(r'^', include(twitch_patterns)),
+    url(r'^twitch/', include(twitch_patterns)),
     url(r'^admin/', admin.site.urls),
 ]

@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from twitch_stats.models import TwitchProfile, TwitchTrackingProfile, TwitchStats
 from twitch_stats.serializers import TwitchProfileSerializer, TwitchProfileRegisterSerializer, \
-    TwitchAddTrackingSerializer, TwitchTrackingSerializer, TrackingSchedulerSerializer
+    TwitchAddTrackingSerializer, TwitchTrackingSerializer, TrackingSchedulerSerializer, TwitchStatsSerializer
 
 from twitch_stats.permissions import IsOwnerOrReadOnly
 from twitch_stats.settings import GOD_TOKEN
@@ -122,10 +122,18 @@ class TwitchTrackingProfileViewSet(viewsets.GenericViewSet, mixins.ListModelMixi
         else:
             return TwitchTrackingProfile.objects.none()
 
+class TwitchStatsViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+    queryset = TwitchTrackingProfile.objects.all()
+    serializer_class = TwitchStatsSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return TwitchStats.objects.filter(channel_id=self.kwargs['pk'])
+
 
 class TrackingView(APIView):
     """
-    View for starting and stopping scheduled task.
+    View for starting and stopping scheduled task. (temporary solution)
     """
     throttle_classes = ()
     permission_classes = (AllowAny,)
