@@ -20,4 +20,4 @@ after_success:
 - mkdir build
 - cd ..
 - tar -czf build.tgz *
-- scp -o stricthostkeychecking=no build.tgz $DEPLOY_USERNAME@$DEPLOY_HOST:$DEPLOY_PATH
+- scp -i ~/.ssh/id_rsa -o stricthostkeychecking=no build.tgz $DEPLOY_USERNAME@$DEPLOY_HOST:$DEPLOY_PATH
