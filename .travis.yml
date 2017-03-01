@@ -9,14 +9,13 @@ addons:
 before_install:
 - openssl aes-256-cbc -K $encrypted_681dc6bc9314_key -iv $encrypted_681dc6bc9314_iv
   -in deploy_key.enc -out deploy_key -d
-- chmod 600 deploy-key
-- mv deploy-key ~/.ssh/id_rsa
 
 install: "pip install -r requirements.txt"
 
 script: python manage.py test
 
-after_success:
+deploy:
+  skip_cleanup: true
 - mkdir build
 - cd ..
 - tar -czf build.tgz *
