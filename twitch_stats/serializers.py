@@ -46,6 +46,7 @@ class TwitchTrackingSerializer(serializers.HyperlinkedModelSerializer):
         model = TwitchTrackingProfile
         fields = ('twitch_id',)
 
+
 class TwitchStatsSerializer(serializers.HyperlinkedModelSerializer):
     """
     Serializer for retrieving Twitch Stats.
@@ -53,7 +54,8 @@ class TwitchStatsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TwitchStats
-        fields = ('channel_id', 'stream_id', 'channel_status', 'current_viewers', 'total_views', 'total_followers')
+        fields = ('channel_id', 'stream_id', 'channel_status', 'current_viewers',
+                  'total_views', 'total_followers', 'created')
 
 
 class TrackingSchedulerSerializer(serializers.Serializer):
