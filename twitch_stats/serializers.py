@@ -55,7 +55,7 @@ class TwitchStatsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = TwitchStats
         fields = ('channel_id', 'stream_id', 'channel_status', 'game', 'current_viewers',
-                  'total_views', 'total_followers', 'created')
+                  'total_views', 'total_followers', 'created')  #
 
 
 class TrackingSchedulerSerializer(serializers.Serializer):
