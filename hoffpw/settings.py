@@ -110,7 +110,7 @@ REST_FRAMEWORK = {
         'webauth.authentication.CustomTokenAuthentication',
     ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 100
 }
 
 
