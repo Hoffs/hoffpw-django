@@ -54,7 +54,7 @@ class TwitchStatsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TwitchStats
-        fields = ('channel_id', 'stream_id', 'channel_status', 'current_viewers',
+        fields = ('channel_id', 'stream_id', 'channel_status', 'game', 'current_viewers',
                   'total_views', 'total_followers', 'created')
 
 
